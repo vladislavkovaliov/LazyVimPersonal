@@ -101,6 +101,7 @@ return {
         "<cmd>Telescope buffers sort_mru=true sort_lastused=true ignore_current_buffer=true<cr>",
         desc = "Buffers",
       },
+      { "<leader>fB", "<cmd>Telescope buffers<cr>", desc = "Buffers (all)" },
       { "<leader>fc", LazyVim.pick.config_files(), desc = "Find Config File" },
       { "<leader>ff", LazyVim.pick("files"), desc = "Find Files (Root Dir)" },
       { "<leader>fF", LazyVim.pick("files", { root = false }), desc = "Find Files (cwd)" },
@@ -109,15 +110,18 @@ return {
       { "<leader>fR", LazyVim.pick("oldfiles", { cwd = vim.uv.cwd() }), desc = "Recent (cwd)" },
       -- git
       { "<leader>gc", "<cmd>Telescope git_commits<CR>", desc = "Commits" },
+      { "<leader>gl", "<cmd>Telescope git_commits<CR>", desc = "Commits" },
       { "<leader>gs", "<cmd>Telescope git_status<CR>", desc = "Status" },
+      { "<leader>gS", "<cmd>Telescope git_stash<cr>", desc = "Git Stash" },
       -- search
       { '<leader>s"', "<cmd>Telescope registers<cr>", desc = "Registers" },
+      { "<leader>s/", "<cmd>Telescope search_history<cr>", desc = "Search History" },
       { "<leader>sa", "<cmd>Telescope autocommands<cr>", desc = "Auto Commands" },
-      { "<leader>sb", "<cmd>Telescope current_buffer_fuzzy_find<cr>", desc = "Buffer" },
+      { "<leader>sb", "<cmd>Telescope current_buffer_fuzzy_find<cr>", desc = "Buffer Lines" },
       { "<leader>sc", "<cmd>Telescope command_history<cr>", desc = "Command History" },
       { "<leader>sC", "<cmd>Telescope commands<cr>", desc = "Commands" },
-      { "<leader>sd", "<cmd>Telescope diagnostics bufnr=0<cr>", desc = "Document Diagnostics" },
-      { "<leader>sD", "<cmd>Telescope diagnostics<cr>", desc = "Workspace Diagnostics" },
+      { "<leader>sd", "<cmd>Telescope diagnostics<cr>", desc = "Diagnostics" },
+      { "<leader>sD", "<cmd>Telescope diagnostics bufnr=0<cr>", desc = "Buffer Diagnostics" },
       { "<leader>sg", LazyVim.pick("live_grep"), desc = "Grep (Root Dir)" },
       { "<leader>sG", LazyVim.pick("live_grep", { root = false }), desc = "Grep (cwd)" },
       { "<leader>sh", "<cmd>Telescope help_tags<cr>", desc = "Help Pages" },
@@ -132,8 +136,8 @@ return {
       { "<leader>sq", "<cmd>Telescope quickfix<cr>", desc = "Quickfix List" },
       { "<leader>sw", LazyVim.pick("grep_string", { word_match = "-w" }), desc = "Word (Root Dir)" },
       { "<leader>sW", LazyVim.pick("grep_string", { root = false, word_match = "-w" }), desc = "Word (cwd)" },
-      { "<leader>sw", LazyVim.pick("grep_string"), mode = "v", desc = "Selection (Root Dir)" },
-      { "<leader>sW", LazyVim.pick("grep_string", { root = false }), mode = "v", desc = "Selection (cwd)" },
+      { "<leader>sw", LazyVim.pick("grep_string"), mode = "x", desc = "Selection (Root Dir)" },
+      { "<leader>sW", LazyVim.pick("grep_string", { root = false }), mode = "x", desc = "Selection (cwd)" },
       { "<leader>uC", LazyVim.pick("colorscheme", { enable_preview = true }), desc = "Colorscheme with Preview" },
       {
         "<leader>ss",
@@ -280,15 +284,18 @@ return {
 
   {
     "neovim/nvim-lspconfig",
-    opts = function()
-      local Keys = require("lazyvim.plugins.lsp.keymaps").get()
-      -- stylua: ignore
-      vim.list_extend(Keys, {
-        { "gd", function() require("telescope.builtin").lsp_definitions({ reuse_win = true }) end, desc = "Goto Definition", has = "definition" },
-        { "gr", "<cmd>Telescope lsp_references<cr>", desc = "References", nowait = true },
-        { "gI", function() require("telescope.builtin").lsp_implementations({ reuse_win = true }) end, desc = "Goto Implementation" },
-        { "gy", function() require("telescope.builtin").lsp_type_definitions({ reuse_win = true }) end, desc = "Goto T[y]pe Definition" },
-      })
-    end,
+    opts = {
+      servers = {
+        ["*"] = {
+          -- stylua: ignore
+          keys = {
+            { "gd", function() require("telescope.builtin").lsp_definitions({ reuse_win = true }) end, desc = "Goto Definition", has = "definition" },
+            { "gr", "<cmd>Telescope lsp_references<cr>", desc = "References", nowait = true },
+            { "gI", function() require("telescope.builtin").lsp_implementations({ reuse_win = true }) end, desc = "Goto Implementation" },
+            { "gy", function() require("telescope.builtin").lsp_type_definitions({ reuse_win = true }) end, desc = "Goto T[y]pe Definition" },
+          },
+        },
+      },
+    },
   },
 }

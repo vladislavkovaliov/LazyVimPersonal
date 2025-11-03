@@ -1,27 +1,26 @@
 return {
 
-    -- search/replace in multiple files
-    {
-        "MagicDuck/grug-far.nvim",
-        opts = { headerMaxWidth = 80 },
-        cmd = "GrugFar",
-        keys = {
-            {
-                "<leader>sr",
-                function()
-                    local grug = require("grug-far")
-                    local ext = vim.bo.buftype == "" and vim.fn.expand("%:e")
-                    grug.open({
-                        transient = true,
-                        prefills = {
-                            filesFilter = ext and ext ~= "" and "*." .. ext or nil,
-                        },
-                    })
-                end,
-                mode = { "n", "v" },
-                desc = "Search and Replace",
+  -- search/replace in multiple files
+  {
+    "MagicDuck/grug-far.nvim",
+    opts = { headerMaxWidth = 80 },
+    cmd = { "GrugFar", "GrugFarWithin" },
+    keys = {
+      {
+        "<leader>sr",
+        function()
+          local grug = require("grug-far")
+          local ext = vim.bo.buftype == "" and vim.fn.expand("%:e")
+          grug.open({
+            transient = true,
+            prefills = {
+              filesFilter = ext and ext ~= "" and "*." .. ext or nil,
             },
-        },
+          })
+        end,
+        mode = { "n", "x" },
+        desc = "Search and Replace",
+      },
     },
 
     -- Flash enhances the built-in search functionality by showing labels
@@ -40,60 +39,64 @@ return {
       { "r", mode = "o", function() require("flash").remote() end, desc = "Remote Flash" },
       { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
       { "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
+      -- Simulate nvim-treesitter incremental selection
+      { "<c-space>", mode = { "n", "o", "x" },
+        function()
+          require("flash").treesitter({
+            actions = {
+              ["<c-space>"] = "next",
+              ["<BS>"] = "prev"
+            }
+          }) 
+        end, desc = "Treesitter Incremental Selection" },
     },
     },
 
-    -- which-key helps you remember key bindings by showing a popup
-    -- with the active keybindings of the command you started typing.
-    {
-        "folke/which-key.nvim",
-        event = "VeryLazy",
-        opts_extend = { "spec" },
-        opts = {
-            preset = "classic",
-            defaults = {},
-            spec = {
-                {
-                    mode = { "n", "v" },
-                    { "<leader><tab>", group = "tabs" },
-                    { "<leader>c", group = "code" },
-                    { "<leader>d", group = "debug" },
-                    { "<leader>dp", group = "profiler" },
-                    { "<leader>f", group = "file/find" },
-                    { "<leader>g", group = "git" },
-                    { "<leader>gh", group = "hunks" },
-                    { "<leader>q", group = "quit/session" },
-                    { "<leader>s", group = "search" },
-                    { "<leader>u", group = "ui", icon = { icon = "󰙵 ", color = "cyan" } },
-                    {
-                        "<leader>x",
-                        group = "diagnostics/quickfix",
-                        icon = { icon = "󱖫 ", color = "green" },
-                    },
-                    { "[", group = "prev" },
-                    { "]", group = "next" },
-                    { "g", group = "goto" },
-                    { "gs", group = "surround" },
-                    { "z", group = "fold" },
-                    {
-                        "<leader>b",
-                        group = "buffer",
-                        expand = function()
-                            return require("which-key.extras").expand.buf()
-                        end,
-                    },
-                    {
-                        "<leader>w",
-                        group = "windows",
-                        proxy = "<c-w>",
-                        expand = function()
-                            return require("which-key.extras").expand.win()
-                        end,
-                    },
-                    -- better descriptions
-                    { "gx", desc = "Open with system app" },
-                },
-            },
+  -- which-key helps you remember key bindings by showing a popup
+  -- with the active keybindings of the command you started typing.
+  {
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    opts_extend = { "spec" },
+    opts = {
+      preset = "helix",
+      defaults = {},
+      spec = {
+        {
+          mode = { "n", "x" },
+          { "<leader><tab>", group = "tabs" },
+          { "<leader>c", group = "code" },
+          { "<leader>d", group = "debug" },
+          { "<leader>dp", group = "profiler" },
+          { "<leader>f", group = "file/find" },
+          { "<leader>g", group = "git" },
+          { "<leader>gh", group = "hunks" },
+          { "<leader>q", group = "quit/session" },
+          { "<leader>s", group = "search" },
+          { "<leader>u", group = "ui" },
+          { "<leader>x", group = "diagnostics/quickfix" },
+          { "[", group = "prev" },
+          { "]", group = "next" },
+          { "g", group = "goto" },
+          { "gs", group = "surround" },
+          { "z", group = "fold" },
+          {
+            "<leader>b",
+            group = "buffer",
+            expand = function()
+              return require("which-key.extras").expand.buf()
+            end,
+          },
+          {
+            "<leader>w",
+            group = "windows",
+            proxy = "<c-w>",
+            expand = function()
+              return require("which-key.extras").expand.win()
+            end,
+          },
+          -- better descriptions
+          { "gx", desc = "Open with system app" },
         },
         keys = {
             {
@@ -148,9 +151,9 @@ return {
             on_attach = function(buffer)
                 local gs = package.loaded.gitsigns
 
-                local function map(mode, l, r, desc)
-                    vim.keymap.set(mode, l, r, { buffer = buffer, desc = desc })
-                end
+        local function map(mode, l, r, desc)
+          vim.keymap.set(mode, l, r, { buffer = buffer, desc = desc, silent = true })
+        end
 
         -- stylua: ignore start
         map("n", "]h", function()
@@ -169,8 +172,8 @@ return {
         end, "Prev Hunk")
         map("n", "]H", function() gs.nav_hunk("last") end, "Last Hunk")
         map("n", "[H", function() gs.nav_hunk("first") end, "First Hunk")
-        map({ "n", "v" }, "<leader>ghs", ":Gitsigns stage_hunk<CR>", "Stage Hunk")
-        map({ "n", "v" }, "<leader>ghr", ":Gitsigns reset_hunk<CR>", "Reset Hunk")
+        map({ "n", "x" }, "<leader>ghs", ":Gitsigns stage_hunk<CR>", "Stage Hunk")
+        map({ "n", "x" }, "<leader>ghr", ":Gitsigns reset_hunk<CR>", "Reset Hunk")
         map("n", "<leader>ghS", gs.stage_buffer, "Stage Buffer")
         map("n", "<leader>ghu", gs.undo_stage_hunk, "Undo Stage Hunk")
         map("n", "<leader>ghR", gs.reset_buffer, "Reset Buffer")
